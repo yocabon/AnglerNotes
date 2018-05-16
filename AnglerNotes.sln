@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnglerNotes", "AnglerNotes\AnglerNotes.csproj", "{881CF27C-8953-47D4-8043-84D30F9474B5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnglerModel", "AnglerModel\AnglerModel.csproj", "{15C81849-D7AE-481F-9CAD-9933F8045B97}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{881CF27C-8953-47D4-8043-84D30F9474B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{881CF27C-8953-47D4-8043-84D30F9474B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{881CF27C-8953-47D4-8043-84D30F9474B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{881CF27C-8953-47D4-8043-84D30F9474B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15C81849-D7AE-481F-9CAD-9933F8045B97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15C81849-D7AE-481F-9CAD-9933F8045B97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15C81849-D7AE-481F-9CAD-9933F8045B97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15C81849-D7AE-481F-9CAD-9933F8045B97}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {842A4BFD-3637-47B3-B6E2-C60C3DD32621}
+	EndGlobalSection
+EndGlobal

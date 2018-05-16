@@ -1,0 +1,74 @@
+﻿<controls:MetroWindow x:Class="AnglerNotes.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:nav="clr-namespace:AnglerNotes.View.Tabs"
+        xmlns:util="clr-namespace:AnglerNotes.Utility"
+        mc:Ignorable="d"
+        UseNoneWindowStyle="False"
+        ShowTitleBar ="True"
+        ShowCloseButton="False"
+        ShowMinButton="False"
+        ShowMaxRestoreButton="False"
+        ShowSystemMenuOnRightClick ="False"
+        Title="Angler Notes" Height="350" Width="525"
+        SourceInitialized="MetroWindow_SourceInitialized"
+        Closing="MetroWindow_Closing">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <controls:MetroWindow.LeftWindowCommands>
+        <controls:WindowCommands>
+            <StackPanel Orientation="Horizontal">
+                <Button Name="AddNewTab">
+                    <i:Interaction.Behaviors>
+                        <util:AddButton/>
+                    </i:Interaction.Behaviors>
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Quick Note" Click="QuickNote_Click"/>
+                            <MenuItem Header="Weekly Schedule" Click="WeeklySchedule_Click"/>
+                            <MenuItem Header="Compare Times" Click="CompareTime_Click"/>
+                            <MenuItem Header="Item Counter" Click="ItemCounter_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                    <Rectangle Width="22" Height="22" Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Uniform"
+                                     Visual="{StaticResource appbar_add}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Button>
+            </StackPanel>
+        </controls:WindowCommands>
+    </controls:MetroWindow.LeftWindowCommands>
+    <controls:MetroWindow.RightWindowCommands>
+        <controls:WindowCommands>
+            <StackPanel Orientation="Horizontal">
+                <Button Name="Settings" Click="Settings_Click">
+                    <Rectangle Width="22" Height="22" Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Uniform"
+                                     Visual="{StaticResource appbar_settings}"/>
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Button>
+            </StackPanel>
+        </controls:WindowCommands>
+    </controls:MetroWindow.RightWindowCommands>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Rectangle Grid.Row="0" Height="0" Name="TitleBarFiller" Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"></Rectangle>
+        <nav:NoteTabView Grid.Row="1" x:Name="NoteTabView"></nav:NoteTabView>
+    </Grid>
+</controls:MetroWindow>
