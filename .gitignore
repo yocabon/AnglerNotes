@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Custom icon for the project
+/AnglerNotes/*.ico
+
 # User-specific files
 *.suo
 *.user

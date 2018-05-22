@@ -186,6 +186,9 @@ namespace AnglerNotes.View.Tabs
                 args.Cancel();
         }
 
+        private TabItem toBeEditedItem;
+        private TextBox toBeEditedTextbox;
+
         /// <summary>
         /// Double click of tab name ==> rename tab
         /// </summary>
@@ -205,9 +208,23 @@ namespace AnglerNotes.View.Tabs
                 editBox.Text = headerBox.Text;
                 editBox.Visibility = Visibility.Visible;
                 editBox.LostFocus += TextBox_LostFocus;
+                NoteTabs.SelectionChanged += NoteTabs_TabChanged;
+
                 editBox.Focus();
+
+                toBeEditedTextbox = editBox;
+                toBeEditedItem = (TabItem)NoteTabs.SelectedItem;
             }
             catch (Exception) { }
+        }
+
+        /// <summary>
+        /// When renaming a tab, clicking outside = finished renaming
+        /// </summary>
+        private void NoteTabs_TabChanged(object sender, RoutedEventArgs e)
+        {
+            if (toBeEditedTextbox != null)
+                ChangeHeader(toBeEditedTextbox);
         }
 
         /// <summary>
@@ -232,9 +249,14 @@ namespace AnglerNotes.View.Tabs
         /// </summary>
         private void ChangeHeader(object sender)
         {
+            if (toBeEditedItem == null)
+                return;
+
             try
             {
                 TextBox editBox = ((TextBox)sender);
+                if (editBox != toBeEditedTextbox)
+                    return;
 
                 System.Windows.Controls.TextBlock headerBox = editBox.Parent.FindChild<System.Windows.Controls.TextBlock>("HeaderBox");
                 Thumb dragThumb = editBox.Parent.FindChild<Thumb>("DragThumb");
@@ -243,8 +265,7 @@ namespace AnglerNotes.View.Tabs
                 dragThumb.Focusable = true;
                 dragThumb.IsHitTestVisible = true;
 
-                TabItem tabItem = (TabItem)NoteTabs.SelectedItem;
-                ITabView tabView = (ITabView)tabItem.Content;
+                ITabView tabView = (ITabView)toBeEditedItem.Content;
 
                 bool success = noteTabViewModel.UpdateTabName(tabView.Index, tabView.NoteTabType, editBox.Text);
 
@@ -253,11 +274,13 @@ namespace AnglerNotes.View.Tabs
 
                 editBox.Visibility = Visibility.Collapsed;
                 editBox.LostFocus -= TextBox_LostFocus;
+                NoteTabs.SelectionChanged -= NoteTabs_TabChanged;
 
                 if (success)
-                {
-                    ((TabItem)NoteTabs.SelectedItem).Header = editBox.Text;
-                }
+                    toBeEditedItem.Header = editBox.Text;
+
+                toBeEditedItem = null;
+                toBeEditedTextbox = null;
             }
             catch (Exception) { }
         }
