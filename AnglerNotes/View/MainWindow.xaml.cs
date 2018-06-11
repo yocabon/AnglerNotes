@@ -82,7 +82,12 @@ namespace AnglerNotes.View
                 int windowIndex = WindowManager.Count;
                 NoteTabView.ReorderTabs(windowIndex);
                 mainWindowViewModel.RegisterPlacement(this, windowIndex);
-                System.Windows.Application.Current.Shutdown();
+
+                if (!App.IsShutingDown)
+                {
+                    System.Windows.Application.Current.Shutdown();
+                    App.IsShutingDown = true;
+                }
 
                 // Window was the last active window, push placement and ordering to the db
                 if (WindowManager.Count == 0)

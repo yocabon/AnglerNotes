@@ -4,7 +4,8 @@
              xmlns:local="clr-namespace:AnglerNotes"
              xmlns:properties="clr-namespace:AnglerNotes.Properties"
              xmlns:dragablz="clr-namespace:Dragablz;assembly=Dragablz"
-             StartupUri="View/MainWindow.xaml">
+             StartupUri="View/MainWindow.xaml"
+             SessionEnding="App_SessionEnding">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
