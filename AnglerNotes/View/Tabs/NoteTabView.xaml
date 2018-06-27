@@ -28,7 +28,12 @@
                     <StackPanel Orientation="Horizontal">
                         <Grid  MouseDown="NoteTabs_MouseDoubleClick" >
                             <TextBlock Name="HeaderBox" Text="{Binding}"/>
-                            <TextBox Name="EditBox" Text="" Visibility="Collapsed" KeyDown="TextBox_KeyDown"/>
+                            <TextBox Name="EditBox" Text="" Visibility="Collapsed" KeyDown="TextBox_KeyDown">
+                                <TextBox.ContextMenu>
+                                    <ContextMenu Visibility="Collapsed">
+                                    </ContextMenu>
+                                </TextBox.ContextMenu>
+                            </TextBox>
                             <!-- you should provide your own Thumb, which will be used to monitor dragging -->
                             <Thumb Name="DragThumb" Style="{DynamicResource InvisibleThumbStyle}"
                    dragablz:DragablzItem.IsCustomThumb="True" />

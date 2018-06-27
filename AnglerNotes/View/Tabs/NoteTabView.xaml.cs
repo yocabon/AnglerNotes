@@ -145,7 +145,7 @@ namespace AnglerNotes.View.Tabs
         private void NoteTabs_ClosingEvent(ItemActionCallbackArgs<TabablzControl> args)
         {
             if (args.DragablzItem.Content == BindingOperations.DisconnectedSource)
-                return;
+                args.Cancel();
 
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes)
@@ -194,11 +194,17 @@ namespace AnglerNotes.View.Tabs
         /// </summary>
         private void NoteTabs_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            try
+            if (sender.GetType() == typeof(System.Windows.Controls.Primitives.Thumb) && toBeEditedItem == null)
             {
                 System.Windows.Controls.TextBlock headerBox = ((System.Windows.Controls.Primitives.Thumb)sender).Parent.FindChild<System.Windows.Controls.TextBlock>("HeaderBox");
                 TextBox editBox = ((System.Windows.Controls.Primitives.Thumb)sender).Parent.FindChild<TextBox>("EditBox");
                 Thumb dragThumb = ((System.Windows.Controls.Primitives.Thumb)sender).Parent.FindChild<Thumb>("DragThumb");
+
+                TabItem selectedItem = (TabItem)NoteTabs.SelectedItem;
+                DragablzItem dragablzItem = editBox.TryFindParent<DragablzItem>();
+
+                if ((TabItem)dragablzItem.Content != selectedItem)
+                    return;
 
                 dragThumb.IsEnabled = false;
                 dragThumb.Focusable = false;
@@ -215,7 +221,6 @@ namespace AnglerNotes.View.Tabs
                 toBeEditedTextbox = editBox;
                 toBeEditedItem = (TabItem)NoteTabs.SelectedItem;
             }
-            catch (Exception) { }
         }
 
         /// <summary>
@@ -252,37 +257,33 @@ namespace AnglerNotes.View.Tabs
             if (toBeEditedItem == null)
                 return;
 
-            try
-            {
-                TextBox editBox = ((TextBox)sender);
-                if (editBox != toBeEditedTextbox)
-                    return;
+            TextBox editBox = ((TextBox)sender);
+            if (editBox != toBeEditedTextbox)
+                return;
 
-                System.Windows.Controls.TextBlock headerBox = editBox.Parent.FindChild<System.Windows.Controls.TextBlock>("HeaderBox");
-                Thumb dragThumb = editBox.Parent.FindChild<Thumb>("DragThumb");
+            System.Windows.Controls.TextBlock headerBox = editBox.Parent.FindChild<System.Windows.Controls.TextBlock>("HeaderBox");
+            Thumb dragThumb = editBox.Parent.FindChild<Thumb>("DragThumb");
 
-                dragThumb.IsEnabled = true;
-                dragThumb.Focusable = true;
-                dragThumb.IsHitTestVisible = true;
+            dragThumb.IsEnabled = true;
+            dragThumb.Focusable = true;
+            dragThumb.IsHitTestVisible = true;
 
-                ITabView tabView = (ITabView)toBeEditedItem.Content;
+            ITabView tabView = (ITabView)toBeEditedItem.Content;
 
-                bool success = noteTabViewModel.UpdateTabName(tabView.Index, tabView.NoteTabType, editBox.Text);
+            bool success = noteTabViewModel.UpdateTabName(tabView.Index, tabView.NoteTabType, editBox.Text);
 
-                headerBox.Visibility = Visibility.Visible;
-                headerBox.Focus();
+            headerBox.Visibility = Visibility.Visible;
+            headerBox.Focus();
 
-                editBox.Visibility = Visibility.Collapsed;
-                editBox.LostFocus -= TextBox_LostFocus;
-                NoteTabs.SelectionChanged -= NoteTabs_TabChanged;
+            editBox.Visibility = Visibility.Collapsed;
+            editBox.LostFocus -= TextBox_LostFocus;
+            NoteTabs.SelectionChanged -= NoteTabs_TabChanged;
 
-                if (success)
-                    toBeEditedItem.Header = editBox.Text;
+            if (success && !String.IsNullOrEmpty(editBox.Text))
+                toBeEditedItem.Header = editBox.Text;
 
-                toBeEditedItem = null;
-                toBeEditedTextbox = null;
-            }
-            catch (Exception) { }
+            toBeEditedItem = null;
+            toBeEditedTextbox = null;
         }
     }
 }
