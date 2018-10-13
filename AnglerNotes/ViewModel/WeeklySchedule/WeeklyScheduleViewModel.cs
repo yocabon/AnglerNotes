@@ -175,7 +175,7 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
 
                 // Sort activities within a day
                 foreach (CellWrapper cellWrapper in WeeklyActivites)
-                    cellWrapper.Activities.Sort((a, b) => a.ConvertedTime.CompareTo(b.ConvertedTime));
+                    cellWrapper.Activities.Sort((a, b) => a.ConvertedTime.TimeOfDay.CompareTo(b.ConvertedTime.TimeOfDay));
 
                 WeeklyActivites = new ObservableCollection<CellWrapper>(WeeklyActivites.OrderBy(w => w.DayOfWeek));
                 OnPropertyChanged("WeeklyActivites");
