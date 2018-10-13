@@ -173,6 +173,10 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
                         WeeklyActivites.ToList().Find(w => w.DayOfWeek == NewActivityWrapper.DayOfWeek).Activities.Add(NewActivityWrapper);
                 }
 
+                // Sort activities within a day
+                foreach (CellWrapper cellWrapper in WeeklyActivites)
+                    cellWrapper.Activities.Sort((a, b) => a.ConvertedTime.CompareTo(b.ConvertedTime));
+
                 WeeklyActivites = new ObservableCollection<CellWrapper>(WeeklyActivites.OrderBy(w => w.DayOfWeek));
                 OnPropertyChanged("WeeklyActivites");
                 ModelAccessLock.Instance.ReleaseAccess();
@@ -203,6 +207,7 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
             public string Name { get; set; }
             public string OriginalTimeZone { get; set; }
             public DateTime UniversalTime { get; set; }
+            public DateTime ConvertedTime { get; set; }
             public DayOfWeek DayOfWeek { get; set; }
             public string Time { get; set; }
 
@@ -215,10 +220,10 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
                 this.UniversalTime = universalTime;
 
                 DateTime ProjectedTime = UniversalTime.SameTimeNextWeek();
-                DateTime convertedTime = TimeZoneInfo.ConvertTime(ProjectedTime.CorrectTimeForDST(attachedTimeZone), timeZoneInfo);
+                this.ConvertedTime = TimeZoneInfo.ConvertTime(ProjectedTime.CorrectTimeForDST(attachedTimeZone), timeZoneInfo);
 
-                this.DayOfWeek = convertedTime.DayOfWeek;
-                this.Time = convertedTime.ToString("HH:mm");
+                this.DayOfWeek = ConvertedTime.DayOfWeek;
+                this.Time = ConvertedTime.ToString("HH:mm");
             }
         }
     }
