@@ -16,6 +16,12 @@
                     Yohann Cabon
                 </Hyperlink>
             </TextBlock>
+            <TextBlock Margin="10,0">
+                Settings are saved
+                <Hyperlink NavigateUri="{Binding FolderPath}" RequestNavigate="Hyperlink_RequestNavigate">
+                    HERE
+                </Hyperlink>
+            </TextBlock>
             <TextBlock Text="{Binding Signature}" FontFamily="Consolas"/>
         </StackPanel>
     </Grid>

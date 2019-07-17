@@ -1,4 +1,7 @@
-﻿namespace AnglerNotes.ViewModel.Settings
+﻿using System.Configuration;
+using System.IO;
+
+namespace AnglerNotes.ViewModel.Settings
 {
     public class SettingsViewModel : ViewModelBase
     {
@@ -36,6 +39,28 @@
             get
             {
                 return GetFileContent();
+            }
+        }
+
+        /// <summary>
+        /// Get C:\Users\USERNAME\AppData\Local\AnglerNotes\AnglerNotes.exe_Url_SUPERHASH\1.0.0.0
+        /// </summary>
+        public string FolderPath
+        {
+            get
+            {
+                string filepath = "";
+                try
+                {
+                    var configUserLevel = ConfigurationUserLevel.PerUserRoamingAndLocal;
+                    var UserConfig = ConfigurationManager.OpenExeConfiguration(configUserLevel);
+                    filepath = UserConfig.FilePath;
+                }
+                catch (ConfigurationException e)
+                {
+                    filepath = e.Filename;
+                }
+                return "file://" + Path.GetDirectoryName(filepath);
             }
         }
 
