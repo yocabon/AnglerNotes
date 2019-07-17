@@ -8,7 +8,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <TextBox Text="{Binding Content, Mode=TwoWay}" TextWrapping="Wrap" AcceptsReturn="True"  BorderThickness="0"/>
+            <TextBox Text="{Binding Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True"  BorderThickness="0" />
         </ScrollViewer>
     </Grid>
 </UserControl>

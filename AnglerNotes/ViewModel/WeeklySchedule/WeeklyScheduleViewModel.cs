@@ -86,7 +86,7 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
                 if (ModelAccessLock.Instance.RequestAccess())
                 {
                     Properties.Settings.Default.Data.WeeklyScheduleTabs[Index].TimeZone = value;
-                    Properties.Settings.Default.Save();
+                    SaveTimer.Instance.RequestSave();
 
                     ModelAccessLock.Instance.ReleaseAccess();
                 }
@@ -113,7 +113,7 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
             if (ModelAccessLock.Instance.RequestAccess())
             {
                 Properties.Settings.Default.Data.WeeklyScheduleTabs[Index].WeeklyActivity.Add(new WeeklyActivity(Name, dateTime, selectedTimeZoneIndex));
-                Properties.Settings.Default.Save();
+                SaveTimer.Instance.RequestSave();
 
                 Build(TimeZone);
                 OnPropertyChanged("WeeklyActivites");
@@ -138,7 +138,7 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
                     }
                 }
                 Properties.Settings.Default.Data.WeeklyScheduleTabs[Index].WeeklyActivity = list;
-                Properties.Settings.Default.Save();
+                SaveTimer.Instance.RequestSave();
 
                 Build(TimeZone);
                 OnPropertyChanged("WeeklyActivites");

@@ -1,44 +1,124 @@
 ﻿using AnglerModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 
 namespace AnglerNotes.ViewModel.ItemCounter
 {
+    public class ObservableItem: ViewModelBase
+    {
+        private string name;
+        public string Name
+        {
+            get { return name;  }
+            set
+            {
+                name = value;
+                OnPropertyChanged("Name");
+            }
+        }
+
+        private int count;
+        public int Count
+        {
+            get { return count; }
+            set
+            {
+                count = value;
+                OnPropertyChanged("Count");
+            }
+        }
+        public ObservableItem(string name, int count)
+        {
+            this.Name = name;
+            this.Count = count;
+        }
+        public ObservableItem(Item item)
+        {
+            Name = item.Name;
+            Count = item.Count;
+        }
+
+        public Item ToItem()
+        {
+            return new Item(Name, Count);
+        }
+
+        public static ObservableCollection<ObservableItem>  GetObservableCollection(List<Item> items)
+        {
+            return new ObservableCollection<ObservableItem>(items.Select(i => new ObservableItem(i)));
+        }
+        public static List<Item> GetList(ObservableCollection<ObservableItem> items)
+        {
+            return items.Select(i => i.ToItem()).ToList();
+        }
+    }
+
     public class ItemCounterViewModel : ViewModelBase
     {
         private int Index;
 
+        private ObservableCollection<ObservableItem> itemList;
+
         /// <summary>
         /// Get / Set value directly from / to db
         /// </summary>
-        public List<Item> ItemList
+        public ObservableCollection<ObservableItem> ItemList
         {
             get
             {
-                List<Item> itemList = new List<Item>();
                 if (ModelAccessLock.Instance.RequestAccess())
                 {
-                    itemList = Properties.Settings.Default.Data.ItemCounterTabs[Index].ItemList;
+                    itemList = ObservableItem.GetObservableCollection(Properties.Settings.Default.Data.ItemCounterTabs[Index].ItemList);
+                    itemList.CollectionChanged += CollectionChanged;
+                    // Make sure that changing Count saves
+                    foreach (ObservableItem item in itemList)
+                    {
+                        item.PropertyChanged += EntityViewModelPropertyChanged;
+                    }
                     ModelAccessLock.Instance.ReleaseAccess();
                 }
                 return itemList;
             }
-            set
+        }
+
+        private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            // Make sure that changing Count saves
+            if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                List<Item> itemList = new List<Item>();
-                if (ModelAccessLock.Instance.RequestAccess())
+                foreach (ObservableItem item in e.OldItems)
                 {
-                    Properties.Settings.Default.Data.ItemCounterTabs[Index].ItemList = value;
-                    Properties.Settings.Default.Save();
-                    ModelAccessLock.Instance.ReleaseAccess();
+                    item.PropertyChanged -= EntityViewModelPropertyChanged;
                 }
-                OnPropertyChanged("ItemList");
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (ObservableItem item in e.NewItems)
+                {
+                    item.PropertyChanged += EntityViewModelPropertyChanged;
+                }
+            }
+            EntityViewModelPropertyChanged(sender, null);
+        }
+
+        public void EntityViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (ModelAccessLock.Instance.RequestAccess())
+            {
+                Properties.Settings.Default.Data.ItemCounterTabs[Index].ItemList = ObservableItem.GetList(itemList);
+                SaveTimer.Instance.RequestSave();
+                ModelAccessLock.Instance.ReleaseAccess();
             }
         }
 
         public ItemCounterViewModel(int index)
         {
             this.Index = index;
+            this.itemList = new ObservableCollection<ObservableItem>();
+            itemList.CollectionChanged += CollectionChanged;
         }
 
         /// <summary>
@@ -49,10 +129,9 @@ namespace AnglerNotes.ViewModel.ItemCounter
             bool success = false;
             if (ModelAccessLock.Instance.RequestAccess())
             {
-                if (!ItemList.Any(w => (w.Name == Name)))
+                if (!itemList.Any(w => (w.Name == Name)))
                 {
-                    ItemList.Add(new Item(Name, 0));
-                    ItemList = new List<Item>(ItemList);
+                    itemList.Add(new ObservableItem(Name, 0));
 
                     success = true;
                     OnPropertyChanged("ItemList");
@@ -65,12 +144,11 @@ namespace AnglerNotes.ViewModel.ItemCounter
         /// <summary>
         /// use ItemList.Remove(item);, must be the same reference
         /// </summary>
-        public void Remove(Item item)
+        public void Remove(ObservableItem item)
         {
             if (ModelAccessLock.Instance.RequestAccess())
             {
-                ItemList.Remove(item);
-                ItemList = new List<Item>(ItemList);
+                itemList.Remove(item);
 
                 OnPropertyChanged("ItemList");
                 ModelAccessLock.Instance.ReleaseAccess();
@@ -80,28 +158,26 @@ namespace AnglerNotes.ViewModel.ItemCounter
         /// <summary>
         /// Move movedItem to inPlaceItem's position in the list
         /// </summary>
-        public void Move(Item movedItem, Item inPlaceItem)
+        public void Move(ObservableItem movedItem, ObservableItem inPlaceItem)
         {
             if (ModelAccessLock.Instance.RequestAccess())
             {
-                int indexMovedItem = ItemList.IndexOf(movedItem);
-                int indexInPlaceItem = ItemList.IndexOf(inPlaceItem);
+                int indexMovedItem = itemList.IndexOf(movedItem);
+                int indexInPlaceItem = itemList.IndexOf(inPlaceItem);
 
                 if (indexMovedItem < indexInPlaceItem)
                 {
-                    ItemList.Insert(indexInPlaceItem + 1, movedItem);
-                    ItemList.RemoveAt(indexMovedItem);
+                    itemList.Insert(indexInPlaceItem + 1, movedItem);
+                    itemList.RemoveAt(indexMovedItem);
                 }
                 else
                 {
-                    if (ItemList.Count + 1 > indexMovedItem + 1)
+                    if (itemList.Count + 1 > indexMovedItem + 1)
                     {
-                        ItemList.Insert(indexInPlaceItem, movedItem);
-                        ItemList.RemoveAt(indexMovedItem + 1);
+                        itemList.Insert(indexInPlaceItem, movedItem);
+                        itemList.RemoveAt(indexMovedItem + 1);
                     }
                 }
-
-                ItemList = new List<Item>(ItemList);
 
                 OnPropertyChanged("ItemList");
                 ModelAccessLock.Instance.ReleaseAccess();

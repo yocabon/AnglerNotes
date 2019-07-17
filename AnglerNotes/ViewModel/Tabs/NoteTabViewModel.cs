@@ -78,7 +78,7 @@ namespace AnglerNotes.ViewModel.Tabs
                 Root property = Properties.Settings.Default.Data;
                 NoteTab noteTab = property.AddNewTab(tabType);
 
-                Properties.Settings.Default.Save();
+                SaveTimer.Instance.RequestSave();
 
                 ModelAccessLock.Instance.ReleaseAccess();
                 return noteTab;
@@ -99,7 +99,7 @@ namespace AnglerNotes.ViewModel.Tabs
                 int tabIndex = property.TabList.FindIndex(t => t.Index == index && t.NoteTabType == noteTabType);
                 property.RemoveTab(tabIndex);
 
-                Properties.Settings.Default.Save();
+                SaveTimer.Instance.RequestSave();
                 ModelAccessLock.Instance.ReleaseAccess();
                 return true;
             }
@@ -118,7 +118,7 @@ namespace AnglerNotes.ViewModel.Tabs
                 int tabIndex = property.TabList.FindIndex(t => t.Index == index && t.NoteTabType == noteTabType);
 
                 Properties.Settings.Default.Data.TabList[tabIndex].Name = newName;
-                Properties.Settings.Default.Save();
+                SaveTimer.Instance.RequestSave();
 
                 ModelAccessLock.Instance.ReleaseAccess();
                 return true;

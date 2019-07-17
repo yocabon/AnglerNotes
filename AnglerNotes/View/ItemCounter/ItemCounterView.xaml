@@ -16,7 +16,7 @@
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
-            <ListView Width="Auto" ItemsSource="{Binding ItemList, Mode=TwoWay}" Name="MainList" Margin="20,10" AllowDrop="True" Drop="MainList_Drop" PreviewMouseMove="MainList_PreviewMouseMove">
+            <ListView Width="Auto" ItemsSource="{Binding ItemList}" Name="MainList" Margin="20,10" AllowDrop="True" Drop="MainList_Drop" PreviewMouseMove="MainList_PreviewMouseMove">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid Name="NewItemLine" VerticalAlignment="Center">

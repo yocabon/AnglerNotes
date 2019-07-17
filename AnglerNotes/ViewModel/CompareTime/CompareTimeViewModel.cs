@@ -27,7 +27,7 @@ namespace AnglerNotes.ViewModel.CompareTime
                 if (ModelAccessLock.Instance.RequestAccess())
                 {
                     Properties.Settings.Default.Data.CompareTimeTabs[Index].Start = value;
-                    Properties.Settings.Default.Save();
+                    SaveTimer.Instance.RequestSave();
                     ModelAccessLock.Instance.ReleaseAccess();
                     OnPropertyChanged("Start");
                     OnPropertyChanged("TimeDiff");
@@ -55,7 +55,7 @@ namespace AnglerNotes.ViewModel.CompareTime
                 if (ModelAccessLock.Instance.RequestAccess())
                 {
                     Properties.Settings.Default.Data.CompareTimeTabs[Index].End = value;
-                    Properties.Settings.Default.Save();
+                    SaveTimer.Instance.RequestSave();
                     ModelAccessLock.Instance.ReleaseAccess();
                     OnPropertyChanged("End");
                     OnPropertyChanged("TimeDiff");

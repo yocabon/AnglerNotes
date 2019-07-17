@@ -29,10 +29,10 @@
                 if (ModelAccessLock.Instance.RequestAccess())
                 {
                     Properties.Settings.Default.Data.TextBlockTabs[Index].Content = value;
-                    Properties.Settings.Default.Save();
                     ModelAccessLock.Instance.ReleaseAccess();
                     OnPropertyChanged("Content");
                 }
+                SaveTimer.Instance.RequestSave();
             }
         }
     }

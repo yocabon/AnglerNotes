@@ -90,7 +90,7 @@ namespace AnglerNotes.View.ItemCounter
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 Button button = ((Button)sender);
-                Item item = ((Item)button.DataContext);
+                ObservableItem item = ((ObservableItem)button.DataContext);
                 itemCounterViewModel.Remove(item);
             }
         }
@@ -100,11 +100,11 @@ namespace AnglerNotes.View.ItemCounter
         /// </summary>
         private void MainList_Drop(object sender, DragEventArgs e)
         {
-            Item droppedData = e.Data.GetData(typeof(Item)) as Item;
-            Item targetItem = null;
+            ObservableItem droppedData = e.Data.GetData(typeof(ObservableItem)) as ObservableItem;
+            ObservableItem targetItem = null;
             try
             {
-                targetItem = ((System.Windows.Controls.TextBlock)e.OriginalSource).DataContext as Item;
+                targetItem = ((System.Windows.Controls.TextBlock)e.OriginalSource).DataContext as ObservableItem;
             }
             catch (Exception) { }
 
@@ -112,7 +112,7 @@ namespace AnglerNotes.View.ItemCounter
             {
                 try
                 {
-                    targetItem = ((System.Windows.Controls.Border)e.OriginalSource).DataContext as Item;
+                    targetItem = ((System.Windows.Controls.Border)e.OriginalSource).DataContext as ObservableItem;
                 }
                 catch (Exception) { }
             }
