@@ -8,6 +8,13 @@
         mc:Ignorable="d"
         Title="About" Height="600" Width="500"
         Closing="MetroWindow_Closing">
+    <controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </controls:MetroWindow.Resources>
     <Grid>
         <StackPanel Orientation="Vertical">
             <TextBlock Margin="10,0">
@@ -16,12 +23,21 @@
                     Yohann Cabon
                 </Hyperlink>
             </TextBlock>
-            <TextBlock Margin="10,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="10,0" VerticalAlignment="Center">
                 Settings are saved
                 <Hyperlink NavigateUri="{Binding FolderPath}" RequestNavigate="Hyperlink_RequestNavigate">
                     HERE
                 </Hyperlink>
-            </TextBlock>
+                </TextBlock>
+                <Button Name="ClipboardButton" Click="Clipboard_Click" VerticalAlignment="Center">
+                    <Rectangle Width="10" Height="10" Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush  Stretch="Fill" Visual="{StaticResource appbar_clipboard}"/>
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Button>
+            </StackPanel>
             <TextBlock Text="{Binding Signature}" FontFamily="Consolas"/>
         </StackPanel>
     </Grid>

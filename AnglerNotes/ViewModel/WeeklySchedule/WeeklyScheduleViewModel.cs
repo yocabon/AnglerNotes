@@ -35,6 +35,26 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
             }
         }
 
+        public static string FormatTimezone(int timeZoneIndex)
+        {
+            TimeZoneInfo timeZone = TimeZones[timeZoneIndex];
+            DateTime time = DateTime.UtcNow;
+            DateTimeOffset dateTimeOffset = new DateTimeOffset(time, TimeSpan.Zero);
+            TimeSpan utcOffsetSpan = timeZone.GetUtcOffset(dateTimeOffset);
+            string utcOffset = ((utcOffsetSpan < TimeSpan.Zero) ? "-" : "+") + utcOffsetSpan.ToString(@"hh\:mm");
+
+            string isOffset = (timeZone.BaseUtcOffset != utcOffsetSpan) ? " Offset ON" : "";
+
+            string TimeZoneId = timeZone.Id;
+            Regex regex = new Regex(@"^\(UTC(?<offset>[\+\-]\d\d:\d\d)?\)(?<cities>(\s*[^,]+[\s,]*)*)$");
+            Match match = regex.Match(timeZone.DisplayName);
+            GroupCollection groups = match.Groups;
+            string offset = groups["offset"].Value;
+            string cities = groups["cities"].Value;
+
+            return "(UTC" + utcOffset + isOffset + ")" + " " + (String.IsNullOrEmpty(TimeZoneId) ? "" : (TimeZoneId + " :")) + cities;
+        }
+
         /// <summary>
         /// Formatted time zone list
         /// </summary>
@@ -45,20 +65,7 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
                 string[] formattedTimeZones = new string[TimeZones.Count];
                 for (int i = 0; i < formattedTimeZones.Length; i++)
                 {
-                    var dt = DateTime.UtcNow;
-                    TimeSpan utcOffsetSpan = TimeZones[i].GetUtcOffset(new DateTimeOffset(dt, TimeSpan.Zero));
-                    string utcOffset = ((utcOffsetSpan < TimeSpan.Zero) ? "-" : "+") + utcOffsetSpan.ToString(@"hh\:mm");
-
-                    string isDST = (TimeZones[i].BaseUtcOffset != utcOffsetSpan) ? " DST ON" : "";
-
-                    string TimeZoneId = TimeZones[i].Id;
-                    Regex regex = new Regex(@"^\(UTC(?<offset>[\+\-]\d\d:\d\d)?\)(?<cities>(\s*[^,]+[\s,]*)*)$");
-                    Match match = regex.Match(TimeZones[i].DisplayName);
-                    GroupCollection groups = match.Groups;
-                    string offset = groups["offset"].Value;
-                    string cities = groups["cities"].Value;
-
-                    formattedTimeZones[i] = "(UTC" + utcOffset + isDST + ")" + " " + (String.IsNullOrEmpty(TimeZoneId) ? "" : (TimeZoneId + " :")) + cities;
+                    formattedTimeZones[i] = FormatTimezone(i);
                 }
                 return formattedTimeZones;
             }
