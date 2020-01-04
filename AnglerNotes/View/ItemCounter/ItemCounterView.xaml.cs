@@ -31,7 +31,6 @@ namespace AnglerNotes.View.ItemCounter
 
         private ItemCounterViewModel itemCounterViewModel;
 
-
         public ItemCounterView(int index)
         {
             InitializeComponent();
@@ -39,14 +38,6 @@ namespace AnglerNotes.View.ItemCounter
             this.Index = index;
             itemCounterViewModel = new ItemCounterViewModel(index);
             this.DataContext = itemCounterViewModel;
-        }
-
-        /// <summary>
-        /// When the ok button is clicked
-        /// </summary>
-        private void NewItem_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            TryAddNewItem();
         }
 
         /// <summary>
@@ -62,9 +53,92 @@ namespace AnglerNotes.View.ItemCounter
                 {
                     NewItemName.Text = "";
                     this.Focus();
-                    NewItemLine.Visibility = System.Windows.Visibility.Collapsed;
+                    SetDefaultVisibility();
                 }
             }
+        }
+
+        private void TrySettingUpSync()
+        {
+            if (!string.IsNullOrWhiteSpace(SyncItemName.Text) && itemCounterViewModel.Filename != SyncItemName.Text)
+            {
+                string messageBoxText = "Do you want to sync tab with " + SyncItemName.Text  + "?";
+                string caption = "Word Processor";
+                MessageBoxButton button = MessageBoxButton.YesNo;
+                MessageBoxImage icon = MessageBoxImage.Warning;
+                MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
+
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        // User pressed Yes button
+                        bool success = itemCounterViewModel.TrySync(SyncItemName.Text);
+                        if (success)
+                        {
+                            this.Focus();
+                            SetDefaultVisibility();
+                        }
+                        break;
+                    case MessageBoxResult.No:
+                        // User pressed No button, cancel operation
+                        this.Focus();
+                        SetDefaultVisibility();
+                        break;
+                }
+            }
+            else if(string.IsNullOrWhiteSpace(SyncItemName.Text) && itemCounterViewModel.Filename != "") 
+            {
+                // Unsync
+                string messageBoxText = "Do you want to unsync tab?";
+                string caption = "Word Processor";
+                MessageBoxButton button = MessageBoxButton.YesNo;
+                MessageBoxImage icon = MessageBoxImage.Warning;
+                MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
+
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        // User pressed Yes button
+                        bool success = itemCounterViewModel.TryUnsync();
+                        if (success)
+                        {
+                            this.Focus();
+                            SetDefaultVisibility();
+                        }
+                        break;
+                    case MessageBoxResult.No:
+                        // User pressed No button, cancel operation
+                        this.Focus();
+                        SetDefaultVisibility();
+                        break;
+                }
+            }
+        }
+
+        private void SetDefaultVisibility()
+        {
+            NewItemShow.Visibility = System.Windows.Visibility.Visible;
+            SyncItemShow.Visibility = System.Windows.Visibility.Visible;
+            NewItemLine.Visibility = System.Windows.Visibility.Collapsed;
+            SyncItemLine.Visibility = System.Windows.Visibility.Collapsed;
+        }
+
+        private void SetNewItemVisibility()
+        {
+            NewItemShow.Visibility = System.Windows.Visibility.Visible;
+            SyncItemShow.Visibility = System.Windows.Visibility.Collapsed;
+            NewItemLine.Visibility = System.Windows.Visibility.Visible;
+            SyncItemLine.Visibility = System.Windows.Visibility.Collapsed;
+        }
+
+        private void SetSyncSettingsVisibility()
+        {
+            NewItemShow.Visibility = System.Windows.Visibility.Collapsed;
+            SyncItemShow.Visibility = System.Windows.Visibility.Visible;
+            NewItemLine.Visibility = System.Windows.Visibility.Collapsed;
+            // reset field to db value
+            SyncItemName.Text = itemCounterViewModel.Filename;
+            SyncItemLine.Visibility = System.Windows.Visibility.Visible;
         }
 
         /// <summary>
@@ -73,11 +147,22 @@ namespace AnglerNotes.View.ItemCounter
         private void NewItemShow_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if (NewItemLine.Visibility == System.Windows.Visibility.Visible)
-                NewItemLine.Visibility = System.Windows.Visibility.Collapsed;
+                SetDefaultVisibility();
             else
             {
-                NewItemLine.Visibility = System.Windows.Visibility.Visible;
+                SetNewItemVisibility();
                 NewItemName.Focus();
+            }
+        }
+
+        private void SyncItemShow_Click(object sender, RoutedEventArgs e)
+        {
+            if (SyncItemLine.Visibility == System.Windows.Visibility.Visible)
+                SetDefaultVisibility();
+            else
+            {
+                SetSyncSettingsVisibility();
+                SyncItemName.Focus();
             }
         }
 
@@ -162,6 +247,25 @@ namespace AnglerNotes.View.ItemCounter
         {
             if (e.Key == System.Windows.Input.Key.Enter)
                 TryAddNewItem();
+        }
+
+        /// <summary>
+        /// When the ok button is clicked
+        /// </summary>
+        private void NewItem_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            TryAddNewItem();
+        }
+
+        private void SyncItemName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+                TrySettingUpSync();
+        }
+
+        private void SyncItemValidate_Click(object sender, RoutedEventArgs e)
+        {
+            TrySettingUpSync();
         }
     }
 }

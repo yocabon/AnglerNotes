@@ -48,6 +48,13 @@
                         </Rectangle.OpacityMask>
                     </Rectangle>
                 </Button>
+                <Button Name="SyncItemShow" Click="SyncItemShow_Click" HorizontalAlignment="Left">
+                    <Rectangle Width="15" Height="15" Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush  Stretch="Uniform" Visual="{StaticResource appbar_cloud}"/>
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </Button>
                 <Grid Name="NewItemLine" Visibility="Collapsed" VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -55,6 +62,14 @@
                     </Grid.ColumnDefinitions>
                     <TextBox Name="NewItemName" Text="" Grid.Column="0" MinWidth="200" KeyDown="NewItemName_KeyDown"/>
                     <Button Name="NewItem" Click="NewItem_Click" Grid.Column="1">OK</Button>
+                </Grid>
+                <Grid Name="SyncItemLine" Visibility="Collapsed" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Name="SyncItemName" Text="" Grid.Column="0" MinWidth="200" KeyDown="SyncItemName_KeyDown"/>
+                    <Button Name="SyncItemValidate" Click="SyncItemValidate_Click" Grid.Column="1">OK</Button>
                 </Grid>
             </StackPanel>
         </StackPanel>

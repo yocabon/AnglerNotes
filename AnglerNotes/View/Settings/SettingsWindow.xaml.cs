@@ -97,58 +97,21 @@ namespace AnglerNotes.View.Settings
                     switch (tab.NoteTabType)
                     {
                         case NoteTabType.TextBlock:
-                            text += property.TextBlockTabs[tab.Index].Content;
+                            text += property.TextBlockTabs[tab.Index].ToString();
                         break;
                         case NoteTabType.ItemCounter:
                             {
-                                var tabContent = property.ItemCounterTabs[tab.Index];
-                                foreach(var item in tabContent.ItemList)
-                                {
-                                    text += item.Name + " --- " + item.Count + "\n";
-                                }
+                                text += property.ItemCounterTabs[tab.Index].ToString();
                             }
                             break;
                         case NoteTabType.CompareTime:
                             {
-                                var tabContent = property.CompareTimeTabs[tab.Index];
-                                text += "Start --- " + tabContent.Start.ToString("yyyy'-'MM'-'dd' 'HH':'mm':'ss") + "\n";
-                                text += "End --- " + tabContent.End.ToString("yyyy'-'MM'-'dd' 'HH':'mm':'ss") + "\n";
+                                text += property.CompareTimeTabs[tab.Index].ToString();
                             }
                             break;
                         case NoteTabType.WeeklySchedule:
                             {
-                                var tabContent = property.WeeklyScheduleTabs[tab.Index];
-                                text += "TimeZone " + WeeklyScheduleViewModel.FormatTimezone(tabContent.TimeZone) + "\n";
-
-                                var WeeklyActivites = new List<WeeklyScheduleViewModel.CellWrapper>();
-
-                                foreach (WeeklyActivity activity in tabContent.WeeklyActivity)
-                                {
-                                    WeeklyScheduleViewModel.WeeklyActivityWrapper NewActivityWrapper = new WeeklyScheduleViewModel.WeeklyActivityWrapper(activity.Name, activity.Time, WeeklyScheduleViewModel.TimeZones[activity.AttachedTimeZone], tabContent.TimeZone);
-
-                                    if (!WeeklyActivites.Any(w => w.DayOfWeek == NewActivityWrapper.DayOfWeek))
-                                    {
-                                        WeeklyScheduleViewModel.CellWrapper cellWrapper = new WeeklyScheduleViewModel.CellWrapper(NewActivityWrapper.DayOfWeek);
-                                        cellWrapper.Activities.Add(NewActivityWrapper);
-                                        WeeklyActivites.Add(cellWrapper);
-                                    }
-                                    else
-                                        WeeklyActivites.ToList().Find(w => w.DayOfWeek == NewActivityWrapper.DayOfWeek).Activities.Add(NewActivityWrapper);
-                                }
-
-                                // Sort activities within a day
-                                foreach (WeeklyScheduleViewModel.CellWrapper cellWrapper in WeeklyActivites)
-                                    cellWrapper.Activities.Sort((a, b) => a.ConvertedTime.TimeOfDay.CompareTo(b.ConvertedTime.TimeOfDay));
-
-                                WeeklyActivites = WeeklyActivites.OrderBy(w => w.DayOfWeek).ToList();
-
-                                foreach (var cellWrapper in WeeklyActivites)
-                                {
-                                    text += "\n" + cellWrapper.DayOfWeek + "\n\n";
-
-                                    foreach (var activity in cellWrapper.Activities)
-                                        text += activity.Name + " : " + activity.Time + " --- AttachedTimeZone: " + activity.OriginalTimeZone + "\n";
-                                }
+                                text += property.WeeklyScheduleTabs[tab.Index].ToString();
                             }
                             break;
                     }

@@ -20,5 +20,10 @@ namespace AnglerModel
         {
             this.Content = "";
         }
+
+        public override string ToString()
+        {
+            return Content;
+        }
     }
 }

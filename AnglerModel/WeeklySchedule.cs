@@ -1,5 +1,7 @@
-﻿using System;
+﻿using AnglerModel.Utility;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AnglerModel
 {
@@ -8,6 +10,11 @@ namespace AnglerModel
     /// </summary>
     public class WeeklySchedule
     {
+        /// <summary>
+        /// Sync to human readble text file. This is the filename. For now readonly.
+        /// </summary>
+        public string SyncFilename { get; set; }
+
         /// <summary>
         /// Time zone in which all weekly activities are shown
         /// </summary>
@@ -23,8 +30,45 @@ namespace AnglerModel
         /// </summary>
         public WeeklySchedule()
         {
+            SyncFilename = "";
             TimeZone = 0;
             WeeklyActivity = new List<WeeklyActivity>();
+        }
+
+        public override string ToString()
+        {
+            string text = "TimeZone " + DateTimeExtension.FormatTimezone(TimeZone) + "\n";
+
+            var WeeklyActivites = new List<CellWrapper>();
+
+            foreach (WeeklyActivity activity in WeeklyActivity)
+            {
+                WeeklyActivityWrapper NewActivityWrapper = new WeeklyActivityWrapper(activity.Name, activity.Time, DateTimeExtension.TimeZones[activity.AttachedTimeZone], TimeZone);
+
+                if (!WeeklyActivites.Any(w => w.DayOfWeek == NewActivityWrapper.DayOfWeek))
+                {
+                    CellWrapper cellWrapper = new CellWrapper(NewActivityWrapper.DayOfWeek);
+                    cellWrapper.Activities.Add(NewActivityWrapper);
+                    WeeklyActivites.Add(cellWrapper);
+                }
+                else
+                    WeeklyActivites.ToList().Find(w => w.DayOfWeek == NewActivityWrapper.DayOfWeek).Activities.Add(NewActivityWrapper);
+            }
+
+            // Sort activities within a day
+            foreach (CellWrapper cellWrapper in WeeklyActivites)
+                cellWrapper.Activities.Sort((a, b) => a.ConvertedTime.TimeOfDay.CompareTo(b.ConvertedTime.TimeOfDay));
+
+            WeeklyActivites = WeeklyActivites.OrderBy(w => w.DayOfWeek).ToList();
+
+            foreach (var cellWrapper in WeeklyActivites)
+            {
+                text += "\n" + cellWrapper.DayOfWeek + "\n\n";
+
+                foreach (var activity in cellWrapper.Activities)
+                    text += activity.Name + " : " + activity.Time + " --- AttachedTimeZone: " + activity.OriginalTimeZone + "\n";
+            }
+            return text;
         }
     }
 

@@ -35,6 +35,7 @@ namespace AnglerNotes.ViewModel.Tabs
                 orderedTabs = null;
 
                 Properties.Settings.Default.Save();
+                SyncManager.Instance.SaveSyncedTabToFiles();
                 ModelAccessLock.Instance.ReleaseAccess();
             }
         }

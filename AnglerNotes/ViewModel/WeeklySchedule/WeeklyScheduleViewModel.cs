@@ -3,17 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.RegularExpressions;
-using AnglerNotes.Utility;
+using AnglerModel.Utility;
+using System.IO;
+using AnglerNotes.ViewModel.Settings;
 
 namespace AnglerNotes.ViewModel.WeeklySchedule
 {
     public class WeeklyScheduleViewModel : ViewModelBase
     {
         private int Index;
-
-        public static readonly ReadOnlyCollection<TimeZoneInfo> TimeZones = TimeZoneInfo.GetSystemTimeZones();
-        public static readonly DayOfWeek[] DaysOfWeek = typeof(DayOfWeek).GetEnumValues().Cast<DayOfWeek>().ToArray();
 
         // private Dictionary<DayOfWeek, List<WeeklyActivityWrapper>> weeklyActivites;
 
@@ -35,26 +33,6 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
             }
         }
 
-        public static string FormatTimezone(int timeZoneIndex)
-        {
-            TimeZoneInfo timeZone = TimeZones[timeZoneIndex];
-            DateTime time = DateTime.UtcNow;
-            DateTimeOffset dateTimeOffset = new DateTimeOffset(time, TimeSpan.Zero);
-            TimeSpan utcOffsetSpan = timeZone.GetUtcOffset(dateTimeOffset);
-            string utcOffset = ((utcOffsetSpan < TimeSpan.Zero) ? "-" : "+") + utcOffsetSpan.ToString(@"hh\:mm");
-
-            string isOffset = (timeZone.BaseUtcOffset != utcOffsetSpan) ? " Offset ON" : "";
-
-            string TimeZoneId = timeZone.Id;
-            Regex regex = new Regex(@"^\(UTC(?<offset>[\+\-]\d\d:\d\d)?\)(?<cities>(\s*[^,]+[\s,]*)*)$");
-            Match match = regex.Match(timeZone.DisplayName);
-            GroupCollection groups = match.Groups;
-            string offset = groups["offset"].Value;
-            string cities = groups["cities"].Value;
-
-            return "(UTC" + utcOffset + isOffset + ")" + " " + (String.IsNullOrEmpty(TimeZoneId) ? "" : (TimeZoneId + " :")) + cities;
-        }
-
         /// <summary>
         /// Formatted time zone list
         /// </summary>
@@ -62,16 +40,16 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
         {
             get
             {
-                string[] formattedTimeZones = new string[TimeZones.Count];
+                string[] formattedTimeZones = new string[DateTimeExtension.TimeZones.Count];
                 for (int i = 0; i < formattedTimeZones.Length; i++)
                 {
-                    formattedTimeZones[i] = FormatTimezone(i);
+                    formattedTimeZones[i] = DateTimeExtension.FormatTimezone(i);
                 }
                 return formattedTimeZones;
             }
         }
 
-        public DayOfWeek[] InstanceDaysOfWeek { get { return DaysOfWeek; } }
+        public DayOfWeek[] InstanceDaysOfWeek { get { return DateTimeExtension.DaysOfWeek; } }
 
         /// <summary>
         /// Selected time zone (combo box at the top) directly from / to db
@@ -106,10 +84,83 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
             }
         }
 
+        public string Filename
+        {
+            get
+            {
+                string content = "Timeout Error";
+                if (ModelAccessLock.Instance.RequestAccess())
+                {
+                    content = Properties.Settings.Default.Data.WeeklyScheduleTabs[Index].SyncFilename;
+                    ModelAccessLock.Instance.ReleaseAccess();
+                }
+                return content;
+            }
+        }
+
         public WeeklyScheduleViewModel(int index)
         {
             this.Index = index;
             Build(TimeZone);
+        }
+
+        public bool TrySync(string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName))
+                return false;
+
+            if (Filename == newName)
+                return true;
+
+            string newFullPath = Path.Combine(SettingsViewModel.GetFolderPath(), newName + ".txt");
+            if (File.Exists(newFullPath))
+                return false;
+
+            bool success = false;
+            if (ModelAccessLock.Instance.RequestAccess())
+            {
+                try
+                {
+                    string fullpath = Path.Combine(SettingsViewModel.GetFolderPath(), Filename + ".txt");
+                    if (!string.IsNullOrWhiteSpace(Filename) && File.Exists(fullpath))
+                        File.Move(fullpath, newFullPath);
+                    Properties.Settings.Default.Data.WeeklyScheduleTabs[Index].SyncFilename = newName;
+                    SaveTimer.Instance.RequestSave();
+                    success = true;
+                }
+                catch (Exception)
+                {
+                    success = false;
+                }
+                ModelAccessLock.Instance.ReleaseAccess();
+            }
+            return success;
+        }
+
+        public bool TryUnsync()
+        {
+            if (string.IsNullOrWhiteSpace(Filename))
+                return true;
+
+            bool success = false;
+            if (ModelAccessLock.Instance.RequestAccess())
+            {
+                try
+                {
+                    string fullpath = Path.Combine(SettingsViewModel.GetFolderPath(), Filename + ".txt");
+                    if (File.Exists(fullpath))
+                        File.Delete(fullpath);
+                    Properties.Settings.Default.Data.WeeklyScheduleTabs[Index].SyncFilename = "";
+                    SaveTimer.Instance.RequestSave();
+                    success = true;
+                }
+                catch (Exception)
+                {
+                    success = false;
+                }
+                ModelAccessLock.Instance.ReleaseAccess();
+            }
+            return success;
         }
 
         /// <summary>
@@ -168,7 +219,7 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
                 List<WeeklyActivity> list = Properties.Settings.Default.Data.WeeklyScheduleTabs[Index].WeeklyActivity;
                 foreach (WeeklyActivity activity in list)
                 {
-                    WeeklyActivityWrapper NewActivityWrapper = new WeeklyActivityWrapper(activity.Name, activity.Time, TimeZones[activity.AttachedTimeZone], selectedTimeZoneIndex);
+                    WeeklyActivityWrapper NewActivityWrapper = new WeeklyActivityWrapper(activity.Name, activity.Time, DateTimeExtension.TimeZones[activity.AttachedTimeZone], selectedTimeZoneIndex);
 
                     if (!WeeklyActivites.Any(w => w.DayOfWeek == NewActivityWrapper.DayOfWeek))
                     {
@@ -190,48 +241,5 @@ namespace AnglerNotes.ViewModel.WeeklySchedule
             }
         }
 
-        /// <summary>
-        /// Wrapper that contains all activities that occur for a day of week
-        /// </summary>
-        public class CellWrapper
-        {
-            public CellWrapper(DayOfWeek dayOfWeek)
-            {
-                DayOfWeek = dayOfWeek;
-                Activities = new List<WeeklyActivityWrapper>();
-            }
-
-            public DayOfWeek DayOfWeek { get; set; }
-            public List<WeeklyActivityWrapper> Activities { get; set; }
-
-        }
-
-        /// <summary>
-        /// Wrapper for binding activities
-        /// </summary>
-        public class WeeklyActivityWrapper
-        {
-            public string Name { get; set; }
-            public string OriginalTimeZone { get; set; }
-            public DateTime UniversalTime { get; set; }
-            public DateTime ConvertedTime { get; set; }
-            public DayOfWeek DayOfWeek { get; set; }
-            public string Time { get; set; }
-
-            public WeeklyActivityWrapper(string Name, DateTime universalTime, TimeZoneInfo attachedTimeZone, int selectedTimeZoneIndex)
-            {
-                this.Name = Name;
-                this.OriginalTimeZone = attachedTimeZone.Id;
-
-                TimeZoneInfo timeZoneInfo = TimeZones[selectedTimeZoneIndex];
-                this.UniversalTime = universalTime;
-
-                DateTime ProjectedTime = UniversalTime.SameTimeNextWeek();
-                this.ConvertedTime = TimeZoneInfo.ConvertTime(ProjectedTime.CorrectTimeForDST(attachedTimeZone), timeZoneInfo);
-
-                this.DayOfWeek = ConvertedTime.DayOfWeek;
-                this.Time = ConvertedTime.ToString("HH:mm");
-            }
-        }
     }
 }

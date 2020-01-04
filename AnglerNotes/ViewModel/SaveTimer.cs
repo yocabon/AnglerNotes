@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace AnglerNotes.ViewModel
@@ -44,6 +40,7 @@ namespace AnglerNotes.ViewModel
             if (ModelAccessLock.Instance.RequestAccess() && !App.IsShutingDown)
             {
                 Properties.Settings.Default.Save();
+                SyncManager.Instance.SaveSyncedTabToFiles();
                 SavePlanned = false;
                 ModelAccessLock.Instance.ReleaseAccess();
             }
@@ -51,14 +48,11 @@ namespace AnglerNotes.ViewModel
 
         public void RequestSave()
         {
-            if (ModelAccessLock.Instance.RequestAccess())
+            if (!SavePlanned)
             {
-                if (!SavePlanned)
-                {
-                    SavePlanned = true;
-                    Task.Factory.StartNew(() => Thread.Sleep(DefaultTime * 1000))
-                                .ContinueWith(task =>SaveAllSettings(), TaskScheduler.FromCurrentSynchronizationContext());
-                }
+                SavePlanned = true;
+                Task.Factory.StartNew(() => Thread.Sleep(DefaultTime * 1000))
+                            .ContinueWith(task =>SaveAllSettings(), TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
     }

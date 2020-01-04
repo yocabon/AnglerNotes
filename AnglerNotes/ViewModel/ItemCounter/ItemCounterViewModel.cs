@@ -1,8 +1,11 @@
 ﻿using AnglerModel;
+using AnglerNotes.ViewModel.Settings;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 
 namespace AnglerNotes.ViewModel.ItemCounter
@@ -114,11 +117,98 @@ namespace AnglerNotes.ViewModel.ItemCounter
             }
         }
 
+        public string Filename
+        {
+            get
+            {
+                string content = "Timeout Error";
+                if (ModelAccessLock.Instance.RequestAccess())
+                {
+                    content = Properties.Settings.Default.Data.ItemCounterTabs[Index].SyncFilename;
+                    ModelAccessLock.Instance.ReleaseAccess();
+                }
+                return content;
+            }
+        }
+
+        private void ResetTab(NoteTabType tabType, int tabIndex)
+        {
+            if (tabType == NoteTabType.ItemCounter && tabIndex == this.Index)
+            {
+                if (ModelAccessLock.Instance.RequestAccess())
+                {
+                    itemList = ObservableItem.GetObservableCollection(Properties.Settings.Default.Data.ItemCounterTabs[Index].ItemList);
+                    OnPropertyChanged("ItemList");
+                    ModelAccessLock.Instance.ReleaseAccess();
+                }
+            }
+        }
+
         public ItemCounterViewModel(int index)
         {
             this.Index = index;
             this.itemList = new ObservableCollection<ObservableItem>();
             itemList.CollectionChanged += CollectionChanged;
+            SyncManager.Instance.ResyncEvent += ResetTab;
+        }
+
+        public bool TrySync(string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName))
+                return false;
+
+            if (Filename == newName)
+                return true;
+
+            string newFullPath = Path.Combine(SettingsViewModel.GetFolderPath(), newName + ".txt");
+            if (File.Exists(newFullPath))
+                return false;
+            
+            bool success = false;
+            if (ModelAccessLock.Instance.RequestAccess())
+            {
+                try
+                {
+                    string fullpath = Path.Combine(SettingsViewModel.GetFolderPath(), Filename + ".txt");
+                    if (!string.IsNullOrWhiteSpace(Filename) && File.Exists(fullpath))
+                        File.Move(fullpath, newFullPath);
+                    Properties.Settings.Default.Data.ItemCounterTabs[Index].SyncFilename = newName;
+                    SaveTimer.Instance.RequestSave();
+                    success = true;
+                }
+                catch (Exception)
+                {
+                    success = false;
+                }
+                ModelAccessLock.Instance.ReleaseAccess();
+            }
+            return success;
+        }
+
+        public bool TryUnsync()
+        {
+            if (string.IsNullOrWhiteSpace(Filename))
+                return true;
+
+            bool success = false;
+            if (ModelAccessLock.Instance.RequestAccess())
+            {
+                try
+                {
+                    string fullpath = Path.Combine(SettingsViewModel.GetFolderPath(), Filename + ".txt");
+                    if (File.Exists(fullpath))
+                        File.Delete(fullpath);
+                    Properties.Settings.Default.Data.ItemCounterTabs[Index].SyncFilename = "";
+                    SaveTimer.Instance.RequestSave();
+                    success = true;
+                }
+                catch (Exception)
+                {
+                    success = false;
+                }
+                ModelAccessLock.Instance.ReleaseAccess();
+            }
+            return success;
         }
 
         /// <summary>

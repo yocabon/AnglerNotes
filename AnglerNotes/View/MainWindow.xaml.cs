@@ -94,6 +94,7 @@ namespace AnglerNotes.View
                 {
                     mainWindowViewModel.SavePlacement();
                     NoteTabView.SendOrderedTabs();
+                    SyncManager.Instance.Dispose();
                 }
             }
         }

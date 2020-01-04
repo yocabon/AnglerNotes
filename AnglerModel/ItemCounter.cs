@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace AnglerModel
 {
@@ -7,6 +10,13 @@ namespace AnglerModel
     /// </summary>
     public class ItemCounter
     {
+        private const string Pattern = @"^(?<name>.*)(\ ---\ )(?<count>\d+)$";
+
+        /// <summary>
+        /// Sync to human readble text file. This is the filename.
+        /// </summary>
+        public string SyncFilename { get; set; }
+
         /// <summary>
         /// Simple non ordered list of <see cref="Item"/>
         /// </summary>
@@ -17,7 +27,30 @@ namespace AnglerModel
         /// </summary>
         public ItemCounter()
         {
+            SyncFilename = "";
             ItemList = new List<Item>();
+        }
+
+        public override string ToString()
+        {
+            return string.Join("", ItemList.Select(item => item.Name + " --- " + item.Count + "\n"));
+        }
+
+        public void LoadFromString(string content)
+        {
+            if (string.IsNullOrWhiteSpace(SyncFilename))
+                return;
+            
+            string[] lines = content.Split( new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            ItemList = new List<Item>();
+            foreach(string line in lines)
+            {
+                var match = Regex.Match(line, Pattern);
+                if (match.Success)
+                {
+                    ItemList.Add(new Item() { Name = match.Groups["name"].Value, Count = int.Parse(match.Groups["count"].Value) });
+                }
+            }
         }
     }
 

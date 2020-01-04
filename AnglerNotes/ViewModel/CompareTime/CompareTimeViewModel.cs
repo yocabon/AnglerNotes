@@ -1,5 +1,5 @@
 ﻿using System;
-using AnglerNotes.Utility;
+using AnglerModel.Utility;
 
 namespace AnglerNotes.ViewModel.CompareTime
 {

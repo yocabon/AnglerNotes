@@ -82,7 +82,6 @@
     <Compile Include="SingleInstanceManager\SingleInstance.cs" />
     <Compile Include="Utility\DragablzExtension.cs" />
     <Compile Include="Utility\AddButton.cs" />
-    <Compile Include="Utility\DateTimeExtension.cs" />
     <Compile Include="Utility\WindowManager.cs" />
     <Compile Include="Utility\WindowPlacement.cs" />
     <Compile Include="ViewModel\CompareTime\CompareTimeViewModel.cs" />
@@ -90,6 +89,7 @@
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\ModelAccessLock.cs" />
     <Compile Include="ViewModel\Settings\SettingsViewModel.cs" />
+    <Compile Include="ViewModel\SyncManager.cs" />
     <Compile Include="ViewModel\Tabs\NoteTabViewModel.cs" />
     <Compile Include="ViewModel\TextBlock\TextBlockViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />

@@ -22,10 +22,16 @@ namespace AnglerNotes.ViewModel
             return index;
         }
 
+        private void OnSettingsLoaded(object sender, System.Configuration.SettingsLoadedEventArgs e)
+        {
+            SyncManager.Instance.LoadSyncedTabsFromFiles();
+        }
+
         public MainWindowViewModel()
         {
             if (ModelAccessLock.Instance.RequestAccess())
             {
+                Properties.Settings.Default.SettingsLoaded += OnSettingsLoaded;
                 Properties.Settings.Default.Reload();
 
                 Root property = Properties.Settings.Default.Data;

@@ -27,5 +27,12 @@ namespace AnglerModel
             Start = now.Date;
             End = now.Date;
         }
+
+        public override string ToString()
+        {
+            string text = "Start --- " + Start.ToString("yyyy'-'MM'-'dd' 'HH':'mm':'ss") + "\n";
+            text += "End --- " + End.ToString("yyyy'-'MM'-'dd' 'HH':'mm':'ss") + "\n";
+            return text;
+        }
     }
 }

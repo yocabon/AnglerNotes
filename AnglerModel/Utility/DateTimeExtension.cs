@@ -1,12 +1,38 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text.RegularExpressions;
 
-namespace AnglerNotes.Utility
+namespace AnglerModel.Utility
 {
     /// <summary>
     /// <see cref="DateTime"/> and <see cref="TimeSpan"/> qol extensions
     /// </summary>
     public static class DateTimeExtension
     {
+        public static readonly ReadOnlyCollection<TimeZoneInfo> TimeZones = TimeZoneInfo.GetSystemTimeZones();
+        public static readonly DayOfWeek[] DaysOfWeek = typeof(DayOfWeek).GetEnumValues().Cast<DayOfWeek>().ToArray();
+
+        public static string FormatTimezone(int timeZoneIndex)
+        {
+            TimeZoneInfo timeZone = TimeZones[timeZoneIndex];
+            DateTime time = DateTime.UtcNow;
+            DateTimeOffset dateTimeOffset = new DateTimeOffset(time, TimeSpan.Zero);
+            TimeSpan utcOffsetSpan = timeZone.GetUtcOffset(dateTimeOffset);
+            string utcOffset = ((utcOffsetSpan < TimeSpan.Zero) ? "-" : "+") + utcOffsetSpan.ToString(@"hh\:mm");
+
+            string isOffset = (timeZone.BaseUtcOffset != utcOffsetSpan) ? " Offset ON" : "";
+
+            string TimeZoneId = timeZone.Id;
+            Regex regex = new Regex(@"^\(UTC(?<offset>[\+\-]\d\d:\d\d)?\)(?<cities>(\s*[^,]+[\s,]*)*)$");
+            Match match = regex.Match(timeZone.DisplayName);
+            GroupCollection groups = match.Groups;
+            string offset = groups["offset"].Value;
+            string cities = groups["cities"].Value;
+
+            return "(UTC" + utcOffset + isOffset + ")" + " " + (String.IsNullOrEmpty(TimeZoneId) ? "" : (TimeZoneId + " :")) + cities;
+        }
+
         /// <summary>
         /// Get timeInDay, but anchored to the first day after DateTime.Now.Date that is a timeInDay.DayOfWeek
         /// </summary>

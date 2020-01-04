@@ -31,6 +31,22 @@ namespace AnglerNotes.ViewModel.Settings
             return output;
         }
 
+        public static string GetFolderPath()
+        {
+            string filepath = "";
+            try
+            {
+                var configUserLevel = ConfigurationUserLevel.PerUserRoamingAndLocal;
+                var UserConfig = ConfigurationManager.OpenExeConfiguration(configUserLevel);
+                filepath = UserConfig.FilePath;
+            }
+            catch (ConfigurationException e)
+            {
+                filepath = e.Filename;
+            }
+            return Path.GetDirectoryName(filepath);
+        }
+
         /// <summary>
         /// No comment on how useless this is, thanks
         /// </summary>
@@ -49,18 +65,7 @@ namespace AnglerNotes.ViewModel.Settings
         {
             get
             {
-                string filepath = "";
-                try
-                {
-                    var configUserLevel = ConfigurationUserLevel.PerUserRoamingAndLocal;
-                    var UserConfig = ConfigurationManager.OpenExeConfiguration(configUserLevel);
-                    filepath = UserConfig.FilePath;
-                }
-                catch (ConfigurationException e)
-                {
-                    filepath = e.Filename;
-                }
-                return "file://" + Path.GetDirectoryName(filepath);
+                return "file://" + GetFolderPath();
             }
         }
 

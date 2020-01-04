@@ -75,6 +75,13 @@
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Button>
+                    <Button Name="SyncItemShow" Click="SyncItemShow_Click" HorizontalAlignment="Left">
+                        <Rectangle Width="15" Height="15" Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush  Stretch="Uniform" Visual="{StaticResource appbar_cloud}"/>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </Button>
                     <StackPanel Orientation="Horizontal" Name="NewActivityLine" Visibility="Collapsed" VerticalAlignment="Center">
                         <TextBlock Text="New Activity" Margin="3,0" VerticalAlignment="Center" Height="15"/>
                         <TextBox Text="" Name="NewActivityName" Margin="3,0" MinWidth="100" Height="15" KeyDown="NewActivityName_KeyDown"/>
@@ -83,6 +90,14 @@
                         <ComboBox ItemsSource="{Binding InstanceTimeZones}" SelectedIndex="0" Name="NewActivityTimeZone" Height="15" Margin="3,0"/>
                         <Button Name="NewActivityValidate" Click="NewActivityValidate_Click">OK</Button>
                     </StackPanel>
+                    <Grid Name="SyncItemLine" Visibility="Collapsed" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Name="SyncItemName" Text="" Grid.Column="0" MinWidth="200" KeyDown="SyncItemName_KeyDown"/>
+                        <Button Name="SyncItemValidate" Click="SyncItemValidate_Click" Grid.Column="1">OK</Button>
+                    </Grid>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
