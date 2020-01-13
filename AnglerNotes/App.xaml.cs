@@ -11,6 +11,11 @@ namespace AnglerNotes
 
         public static bool IsShutingDown = false;
 
+        private void OnSettingsLoaded(object sender, System.Configuration.SettingsLoadedEventArgs e)
+        {
+            ViewModel.SyncManager.Instance.LoadSyncedTabsFromFiles();
+        }
+
         public App()
         {
             //check if we are the first instance
@@ -20,6 +25,8 @@ namespace AnglerNotes
                 SingleInstanceManager.SingleInstance.OnSecondInstanceStarted += NewStartupArgs;
 
                 //place additional startup code here
+                AnglerNotes.Properties.Settings.Default.SettingsLoaded += OnSettingsLoaded;
+                AnglerNotes.Properties.Settings.Default.Reload();
             }
             //we are secondary instance and shutdown will happen automatically
         }
