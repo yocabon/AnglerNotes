@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.Specialized;
+using System.Windows;
 
 namespace AnglerNotes
 {
@@ -13,7 +15,11 @@ namespace AnglerNotes
 
         private void OnSettingsLoaded(object sender, System.Configuration.SettingsLoadedEventArgs e)
         {
-            ViewModel.SyncManager.Instance.LoadSyncedTabsFromFiles();
+            Console.WriteLine("Loaded!");
+            if (AnglerNotes.Properties.Settings.Default.Data != null)
+            {
+                ViewModel.SyncManager.Instance.LoadSyncedTabsFromFiles();
+            }
         }
 
         public App()
@@ -23,12 +29,47 @@ namespace AnglerNotes
             {
                 //we are, register our event handler for receiving the new arguments
                 SingleInstanceManager.SingleInstance.OnSecondInstanceStarted += NewStartupArgs;
-
-                //place additional startup code here
-                AnglerNotes.Properties.Settings.Default.SettingsLoaded += OnSettingsLoaded;
-                AnglerNotes.Properties.Settings.Default.Reload();
             }
             //we are secondary instance and shutdown will happen automatically
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            // https://social.msdn.microsoft.com/Forums/en-US/fea3d1c2-990e-4973-bb1c-03db83f58c61/wpf-app-never-appears-if-showing-a-messagebox-during-app-constructor?forum=wpf
+            // load user data
+            AnglerNotes.Properties.Settings.Default.SettingsLoaded += OnSettingsLoaded;
+            AnglerNotes.Properties.Settings.Default.Reload();
+
+            // handle first load with a bit of safety
+            if (AnglerNotes.Properties.Settings.Default.Data == null)
+            {
+                string messageBoxText = "Data == null, do you want to initialize data?";
+                string caption = "Word Processor";
+                MessageBoxButton button = MessageBoxButton.YesNo;
+                MessageBoxImage icon = MessageBoxImage.Warning;
+                MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
+
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        // User pressed Yes button
+                        AnglerNotes.Properties.Settings.Default.Data = new AnglerModel.Root();
+                        AnglerNotes.Properties.Settings.Default.Save();
+                        break;
+                    case MessageBoxResult.No:
+                        // User pressed No button, cancel operation
+                        Environment.Exit(0);
+                        break;
+                }
+            }
+
+            if (AnglerNotes.Properties.Settings.Default.WindowPlacement == null)
+            {
+                AnglerNotes.Properties.Settings.Default.WindowPlacement = new StringCollection();
+                AnglerNotes.Properties.Settings.Default.Save();
+            }
         }
 
         /// <summary>

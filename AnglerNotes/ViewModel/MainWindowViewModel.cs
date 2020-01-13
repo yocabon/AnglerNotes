@@ -1,5 +1,4 @@
-﻿using AnglerModel;
-using AnglerNotes.Utility;
+﻿using AnglerNotes.Utility;
 using Dragablz;
 using System.Collections.Specialized;
 using System.Windows;
@@ -24,25 +23,6 @@ namespace AnglerNotes.ViewModel
 
         public MainWindowViewModel()
         {
-            if (ModelAccessLock.Instance.RequestAccess())
-            {
-                Root property = Properties.Settings.Default.Data;
-                if (property == null)
-                {
-                    property = new Root();
-                    Properties.Settings.Default.Data = property;
-                }
-
-                StringCollection windowSizes = Properties.Settings.Default.WindowPlacement;
-                if (windowSizes == null)
-                {
-                    Properties.Settings.Default.WindowPlacement = new StringCollection();
-                }
-
-                Properties.Settings.Default.Save();
-
-                ModelAccessLock.Instance.ReleaseAccess();
-            }
         }
 
         /// <summary>

@@ -68,7 +68,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Rectangle Grid.Row="0" Height="0" Name="TitleBarFiller" Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"></Rectangle>
+        <Rectangle Grid.Row="0" Height="0" Name="TitleBarFiller"></Rectangle>
         <nav:NoteTabView Grid.Row="1" x:Name="NoteTabView"></nav:NoteTabView>
     </Grid>
 </controls:MetroWindow>
