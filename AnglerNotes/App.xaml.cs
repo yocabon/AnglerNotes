@@ -15,7 +15,6 @@ namespace AnglerNotes
 
         private void OnSettingsLoaded(object sender, System.Configuration.SettingsLoadedEventArgs e)
         {
-            Console.WriteLine("Loaded!");
             if (AnglerNotes.Properties.Settings.Default.Data != null)
             {
                 ViewModel.SyncManager.Instance.LoadSyncedTabsFromFiles();
