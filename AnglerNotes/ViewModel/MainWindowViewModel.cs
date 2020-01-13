@@ -1,6 +1,6 @@
-﻿using Dragablz;
-using AnglerModel;
+﻿using AnglerModel;
 using AnglerNotes.Utility;
+using Dragablz;
 using System.Collections.Specialized;
 using System.Windows;
 
@@ -31,8 +31,11 @@ namespace AnglerNotes.ViewModel
         {
             if (ModelAccessLock.Instance.RequestAccess())
             {
-                Properties.Settings.Default.SettingsLoaded += OnSettingsLoaded;
-                Properties.Settings.Default.Reload();
+                if (WindowManager.Count == 0)
+                {
+                    Properties.Settings.Default.SettingsLoaded += OnSettingsLoaded;
+                    Properties.Settings.Default.Reload();
+                }
 
                 Root property = Properties.Settings.Default.Data;
                 if (property == null)
@@ -43,7 +46,9 @@ namespace AnglerNotes.ViewModel
 
                 StringCollection windowSizes = Properties.Settings.Default.WindowPlacement;
                 if (windowSizes == null)
+                {
                     Properties.Settings.Default.WindowPlacement = new StringCollection();
+                }
 
                 Properties.Settings.Default.Save();
 
@@ -102,7 +107,9 @@ namespace AnglerNotes.ViewModel
             if (ModelAccessLock.Instance.RequestAccess())
             {
                 while (WindowPlacement.Count < windowIndex + 1)
+                {
                     WindowPlacement.Add("");
+                }
 
                 WindowPlacement[windowIndex] = source.GetPlacement();
                 Properties.Settings.Default.Save();
